@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Mining Telegram Mini App</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header & Language Switcher -->
+    <div class="top-bar">
+        <div class="app-title">⚡ Mining Buddies</div>
+        <select id="language-select" onchange="changeLanguage(this.value)">
+            <option value="en">🇬🇧 English</option>
+            <option value="bn">🇧🇩 বাংলা</option>
+            <option value="ar">🇸🇦 العربية</option>
+        </select>
+    </div>
+
+    <!-- Force Join Screen -->
+    <div id="force-join-screen" class="container">
+        <h2 id="fj-title">🔒 Mandatory Join</h2>
+        <p id="fj-desc">Join our official channels to unlock the app:</p>
+        <div class="channel-list">
+            <a href="https://t.me/channel_1" target="_blank" class="btn-channel">📢 Join Channel 1</a>
+            <a href="https://t.me/channel_2" target="_blank" class="btn-channel">📢 Join Channel 2</a>
+        </div>
+        <button id="verify-btn" class="btn-action-green" onclick="verifyJoin()">✅ Verify & Continue</button>
+    </div>
+
+    <!-- Main Application UI -->
+    <div id="main-app" class="app-container" style="display: none;">
+        
+        <!-- HOME TAB -->
+        <div id="tab-home" class="tab-content active">
+            <h2 id="txt-home">🏠 Home</h2>
+            <div class="card">
+                <p><span id="txt-welcome">Welcome</span>, <b id="user-name">User</b>!</p>
+                <h3><span id="txt-balance">Balance</span>: <span id="user-tokens">0</span> Tokens</h3>
+                <small>(~ <span id="user-usdt">0.00</span> USDT)</small>
+                <div class="badge-vip">VIP Level: <span id="user-vip">1</span></div>
+            </div>
+        </div>
+
+        <!-- MINE TAB (Screen Shot Crew Layout) -->
+        <div id="tab-mine" class="tab-content">
+            <h2 id="txt-mine-title">⛏️ Mining Buddies</h2>
+            <div class="crew-container">
+                
+                <div class="crew-card">
+                    <div class="crew-info">
+                        <h3>🤖 Rocky</h3>
+                        <p>⚡ Working | <span class="rate">200 / h</span></p>
+                    </div>
+                    <button class="btn-mine" onclick="startMiningWithStrictAds('Rocky', 200)">Start (2 Ads)</button>
+                </div>
+
+                <div class="crew-card">
+                    <div class="crew-info">
+                        <h3>🦊 Nugget</h3>
+                        <p>⚡ Working | <span class="rate">350 / h</span></p>
+                    </div>
+                    <button class="btn-mine" onclick="startMiningWithStrictAds('Nugget', 350)">Start (2 Ads)</button>
+                </div>
+
+                <div class="crew-card">
+                    <div class="crew-info">
+                        <h3>🐸 Pickles</h3>
+                        <p>⚡ Working | <span class="rate">500 / h</span></p>
+                    </div>
+                    <button class="btn-mine" onclick="startMiningWithStrictAds('Pickles', 500)">Start (2 Ads)</button>
+                </div>
+
+                <div class="crew-card">
+                    <div class="crew-info">
+                        <h3>👷 Digger</h3>
+                        <p>⚡ Working | <span class="rate">600 / h</span></p>
+                    </div>
+                    <button class="btn-mine" onclick="startMiningWithStrictAds('Digger', 600)">Start (2 Ads)</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- REFER TAB -->
+        <div id="tab-refer" class="tab-content">
+            <h2 id="txt-refer">👥 Referrals</h2>
+            <div class="card">
+                <p>Refer Friends to Unlock VIP & Withdrawals!</p>
+                <p>Total Refers: <b id="user-refers">0</b></p>
+                <input type="text" id="ref-link" value="https://t.me/your_bot?start=12345" readonly>
+                <button class="btn-action" onclick="copyRefLink()">Copy Link</button>
+            </div>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div id="tab-profile" class="tab-content">
+            <h2 id="txt-profile">👤 Profile</h2>
+            <div class="card">
+                <p>Telegram ID: <span id="user-id">-</span></p>
+                <p>Ads Watched: <span id="user-ads-count">0</span></p>
+                <button class="btn-withdraw" onclick="openWithdrawModal()"><span id="txt-withdraw-btn">💸 Withdraw USDT</span></button>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="switchTab('home', this)"><span class="nav-icon">🏠</span><br><span id="nav-home">Home</span></button>
+            <button class="nav-btn" onclick="switchTab('mine', this)"><span class="nav-icon">⛏️</span><br><span id="nav-mine">Mine</span></button>
+            <button class="nav-btn" onclick="switchTab('refer', this)"><span class="nav-icon">👥</span><br><span id="nav-refer">Refer</span></button>
+            <button class="nav-btn" onclick="switchTab('profile', this)"><span class="nav-icon">👤</span><br><span id="nav-profile">Profile</span></button>
+        </div>
+
+    </div>
+
+    <!-- WITHDRAW MODAL -->
+    <div id="withdraw-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3 id="txt-req-withdraw">💸 Request Withdrawal</h3>
+            <p><small>10,000,000 Tokens = 1.00 USDT</small></p>
+
+            <label id="txt-select-network">Select Wallet Network:</label>
+            <select id="wallet-network">
+                <option value="BEP20">USDT (BEP20 / BSC)</option>
+                <option value="TON">USDT (TON Network)</option>
+            </select>
+
+            <input type="text" id="wallet-address" placeholder="Enter Wallet Address">
+            <button class="btn-action-green" onclick="processWithdrawal()">Submit Request</button>
+            <button class="btn-danger" onclick="closeWithdrawModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
