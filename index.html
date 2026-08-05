@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Earning App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #f59e0b;
+            --text-color: #f8fafc;
+            --green: #22c55e;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: var(--card-bg);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #334155;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card h3 { margin: 0; font-size: 14px; color: #94a3b8; }
+        .stat-card p { margin: 5px 0 0; font-size: 20px; font-weight: bold; color: var(--accent-color); }
+
+        .mining-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .mine-btn {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: 6px solid #fbbf24;
+            color: white;
+            font-size: 48px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+            transition: transform 0.1s;
+        }
+
+        .mine-btn:active {
+            transform: scale(0.95);
+        }
+
+        .nav-bar {
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid #334155;
+        }
+
+        .nav-item {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-item.active { color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="user-info">
+            <div class="avatar" id="userAvatar">U</div>
+            <div>
+                <div style="font-weight: bold;" id="userName">User</div>
+                <div style="font-size: 12px; color: var(--green);">● VIP 1</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>COINS</h3>
+            <p id="coinBalance">0</p>
+        </div>
+        <div class="stat-card">
+            <h3>USDT</h3>
+            <p id="usdtBalance">$0.00</p>
+        </div>
+    </div>
+
+    <!-- Main Mining Area -->
+    <div class="mining-section">
+        <button class="mine-btn" onclick="mineCoin()">⛏️</button>
+        <p style="margin-top: 15px; color: #94a3b8;">ট্যাপ করে কয়েন মাইন করুন</p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-bar">
+        <a href="#" class="nav-item active">🏠<br>Home</a>
+        <a href="#" class="nav-item" onclick="alert('Tasks Coming Soon!')">📋<br>Tasks</a>
+        <a href="#" class="nav-item" onclick="alert('Referral System Active!')">👥<br>Friends</a>
+        <a href="#" class="nav-item" onclick="alert('Wallet Feature Coming Soon!')">💼<br>Wallet</a>
+    </div>
+
+    <script>
+        // Initialize Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let coins = 0;
+        let usdt = 0.00;
+
+        // Set User Name from Telegram
+        if(tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
+            document.getElementById('userAvatar').innerText = tg.initDataUnsafe.user.first_name[0];
+        }
+
+        function mineCoin() {
+            coins += 1;
+            usdt += 0.001;
+            document.getElementById('coinBalance').innerText = coins;
+            document.getElementById('usdtBalance').innerText = '$' + usdt.toFixed(3);
+        }
+    </script>
+</body>
+</html>
