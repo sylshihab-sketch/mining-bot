@@ -1,15 +1,37 @@
-<!-- Force Join Modal Screen -->
-<div id="force-join-screen" class="join-container">
-  <h2>🔒 Access Locked</h2>
-  <p>গেমটিতে প্রবেশ করতে নিচের ৫টি চ্যানেলে জয়েন করুন:</p>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Mini App</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-  <div class="channel-list">
-    <a href="https://t.me/channel_1" target="_blank" class="btn-channel">📢 Join Channel 1</a>
-    <a href="https://t.me/channel_2" target="_blank" class="btn-channel">📢 Join Channel 2</a>
-    <a href="https://t.me/channel_3" target="_blank" class="btn-channel">📢 Join Channel 3</a>
-    <a href="https://t.me/channel_4" target="_blank" class="btn-channel">📢 Join Channel 4</a>
-    <a href="https://t.me/channel_5" target="_blank" class="btn-channel">📢 Join Channel 5</a>
-  </div>
+    <!-- Force Join Modal Screen -->
+    <div id="force-join-screen" class="join-container">
+        <h2>🔒 Access Locked</h2>
+        <p>গেমটিতে প্রবেশ করতে নিচের ৫টি চ্যানেলে জয়েন করুন:</p>
 
-  <button id="verify-btn" onclick="checkMembership()">✅ Verify & Continue</button>
-</div>
+        <div class="channel-list">
+            <a href="https://t.me/channel_1" target="_blank" class="btn-channel">📢 Join Channel 1</a>
+            <a href="https://t.me/channel_2" target="_blank" class="btn-channel">📢 Join Channel 2</a>
+            <a href="https://t.me/channel_3" target="_blank" class="btn-channel">📢 Join Channel 3</a>
+            <a href="https://t.me/channel_4" target="_blank" class="btn-channel">📢 Join Channel 4</a>
+            <a href="https://t.me/channel_5" target="_blank" class="btn-channel">📢 Join Channel 5</a>
+        </div>
+
+        <button id="verify-btn" onclick="checkForceJoin()">✅ Verify & Continue</button>
+    </div>
+
+    <!-- Main Game / App Screen -->
+    <div id="main-app" style="display: none;">
+        <h2>🎉 Welcome to the Game!</h2>
+        <!-- আপনার মাইনিং/রেফারেল ড্যাশবোর্ড এখানে থাকবে -->
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
