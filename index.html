@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mining Earning</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#0f172a;
+color:#fff;
+padding:15px;
+}
+
+.header{
+text-align:center;
+padding:15px;
+background:#1e293b;
+border-radius:15px;
+}
+
+.balance{
+margin-top:15px;
+background:#22c55e;
+padding:15px;
+border-radius:12px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+}
+
+.card{
+background:#1e293b;
+margin-top:15px;
+padding:15px;
+border-radius:12px;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#3b82f6;
+color:white;
+font-size:16px;
+margin-top:10px;
+}
+
+.nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+display:flex;
+background:#111827;
+}
+
+.nav button{
+flex:1;
+margin:0;
+border-radius:0;
+background:#111827;
+}
+
+.page{
+display:none;
+padding-bottom:80px;
+}
+
+.active{
+display:block;
+}
+
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+}
+</style>
+</head>
+<body>
+
+<div id="home" class="page active">
+
+<div class="header">
+<h2>⛏ Mining Earning</h2>
+<p id="username">Welcome</p>
+</div>
+
+<div class="balance">
+Balance
+<h1 id="balance">0</h1>
+Coins
+</div>
+
+<div class="card">
+<h3>Mining</h3>
+<p>Earn 10 Coins every click</p>
+<button onclick="mine()">Start Mining</button>
+</div>
+
+<div class="card">
+<h3>Daily Reward</h3>
+<button onclick="daily()">Claim Daily</button>
+</div>
+
+</div>
+
+<div id="tasks" class="page">
+<div class="card">
+<h2>Tasks</h2>
+<p>Join Telegram</p>
+<button onclick="reward(50)">Claim 50 Coins</button>
+
+<p style="margin-top:15px;">Watch Ad</p>
+<button onclick="reward(20)">Claim 20 Coins</button>
+</div>
+</div>
+
+<div id="refer" class="page">
+<div class="card">
+<h2>Referral</h2>
+<p>Your Link</p>
+<input id="refLink" readonly>
+<button onclick="copyRef()">Copy Link</button>
+</div>
+</div>
+
+<div id="withdraw" class="page">
+<div class="card">
+<h2>Withdraw</h2>
+<input placeholder="Wallet Address">
+<input placeholder="Amount">
+<button onclick="alert('Withdraw Request Sent')">Submit</button>
+</div>
+</div>
+
+<div id="profile" class="page">
+<div class="card">
+<h2>Profile</h2>
+<p id="profileInfo"></p>
+</div>
+</div>
+
+<div class="nav">
+<button onclick="showPage('home')">🏠</button>
+<button onclick="showPage('tasks')">📋</button>
+<button onclick="showPage('refer')">👥</button>
+<button onclick="showPage('withdraw')">💸</button>
+<button onclick="showPage('profile')">👤</button>
+</div>
+
+<script>
+
+let tg=window.Telegram.WebApp;
+tg.expand();
+
+let user=tg.initDataUnsafe.user;
+
+if(user){
+document.getElementById("username").innerHTML=user.first_name;
+document.getElementById("profileInfo").innerHTML=
+"Name: "+user.first_name+
+"<br>ID: "+user.id;
+
+document.getElementById("refLink").value=
+"https://t.me/YOUR_BOT?start="+user.id;
+}
+
+let balance=Number(localStorage.getItem("balance"))||0;
+
+update();
+
+function update(){
+document.getElementById("balance").innerHTML=balance;
+localStorage.setItem("balance",balance);
+}
+
+function mine(){
+balance+=10;
+update();
+}
+
+function reward(c){
+balance+=c;
+update();
+alert("Reward Added");
+}
+
+function daily(){
+
+let today=new Date().toDateString();
+
+if(localStorage.getItem("daily")==today){
+alert("Already Claimed");
+return;
+}
+
+localStorage.setItem("daily",today);
+
+balance+=100;
+
+update();
+
+alert("100 Coins Added");
+
+}
+
+function copyRef(){
+
+navigator.clipboard.writeText(
+document.getElementById("refLink").value
+);
+
+alert("Copied");
+
+}
+
+function showPage(id){
+
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+
+document.getElementById(id).classList.add("active");
+
+}
+
+</script>
+
+</body>
+</html>
