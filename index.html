@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mining Earning</title>
+
+  <!-- ADSGRAM SDK -->
+  <script src="https://adsgram.ai/js/adsgram-ad-sdk.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0c0a08; color: #ffffff; padding-bottom: 80px; overflow-x: hidden; }
+
+    #loadingScreen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #0c0a08; display: flex; flex-direction: column;
+      justify-content: center; align-items: center; z-index: 9999;
+    }
+    .banner-box {
+      background: linear-gradient(135deg, #f39c12, #d35400);
+      width: 85%; max-width: 350px; padding: 30px 20px; border-radius: 20px;
+      text-align: center; box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
+      border: 2px solid #f1c40f; margin-bottom: 20px;
+    }
+    .banner-title { font-size: 26px; font-weight: 800; text-transform: uppercase; color: #fff; }
+    .loader { width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid #f39c12; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* FORCE JOIN & AD TIMER MODAL */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(12, 10, 8, 0.95); z-index: 8000; display: none;
+      flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+    }
+
+    .app-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #120e0a; border-bottom: 1px solid #1f1812; }
+    .title-group { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 34px; height: 34px; background: #c27d24; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
+    .card { background: #17130e; margin: 12px; padding: 16px; border-radius: 16px; border: 1px solid #261f17; }
+    .user-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .avatar { width: 48px; height: 48px; border-radius: 50%; background: #33281c; border: 2px solid #c27d24; }
+    .vip-badge { background: #2e200f; color: #f39c12; font-size: 10px; padding: 2px 8px; border-radius: 12px; border: 1px solid #f39c12; font-weight: bold; }
+
+    .stats-grid { display: flex; gap: 10px; margin-top: 10px; }
+    .stat-box { flex: 1; background: #211a13; padding: 12px; border-radius: 12px; border: 1px solid #2d2319; }
+    .stat-label { font-size: 10px; color: #8a7e71; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+    .stat-value { font-size: 20px; font-weight: bold; color: #f39c12; margin-top: 4px; }
+
+    .streak-days { display: flex; gap: 4px; margin: 12px 0; justify-content: space-between; }
+    .day-box { flex: 1; background: #112015; border: 1px solid #228246; padding: 8px 2px; border-radius: 8px; text-align: center; font-size: 10px; color: #2ecc71; }
+    .day-box.active { background: #f39c12; border-color: #f1c40f; color: #000; font-weight: bold; }
+
+    .promo-input { display: flex; gap: 10px; margin-top: 10px; }
+    .promo-input input { flex: 1; background: #0e0b08; border: 1px solid #2d2319; padding: 12px; border-radius: 10px; color: #fff; font-weight: bold; }
+    .btn { background: #27ae60; color: #fff; font-weight: bold; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+    .btn-gold { background: #f39c12; color: #000; }
+    .btn-gray { background: #292118; color: #736250; }
+    .btn-lock { background: #332b22; color: #665848; cursor: not-allowed; }
+    .btn-danger { background: #c0392b; color: #fff; }
+
+    .quick-actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px; }
+    .action-btn { background: #17130e; border: 1px solid #261f17; padding: 10px 4px; border-radius: 12px; text-align: center; color: #aaa; font-size: 10px; cursor: pointer; }
+    .action-btn span { display: block; font-size: 18px; margin-bottom: 4px; }
+
+    .progress-item { background: #17130e; border: 1px solid #261f17; padding: 14px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .miner-card { background: #17130e; border: 1px solid #261f17; padding: 12px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .cat-avatar { font-size: 30px; background: #241c14; width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+
+    .menu-item { display: flex; justify-content: space-between; align-items: center; background: #17130e; border: 1px solid #261f17; padding: 14px; border-radius: 12px; margin-bottom: 8px; }
+    .menu-left { display: flex; align-items: center; gap: 12px; }
+    .menu-icon { width: 32px; height: 32px; background: #241c14; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #f39c12; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #120e0a; height: 65px; border-top: 1px solid #261f17; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+    .nav-link { color: #666; text-align: center; font-size: 10px; text-decoration: none; flex: 1; cursor: pointer; }
+    .nav-link.active { color: #f39c12; font-weight: bold; }
+    .mine-fab { width: 52px; height: 52px; background: radial-gradient(circle, #f1c40f 0%, #e67e22 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #000; box-shadow: 0 0 15px rgba(241, 196, 15, 0.4); margin-top: -22px; border: 4px solid #0c0a08; cursor: pointer; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .tab-btn-group { display: flex; gap: 8px; margin: 12px; }
+    .tab-btn { flex: 1; padding: 10px; background: #17130e; border: 1px solid #261f17; color: #aaa; border-radius: 8px; cursor: pointer; text-align: center; font-size: 12px; font-weight: bold; }
+    .tab-btn.active { background: #f39c12; color: #000; }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING SCREEN -->
+  <div id="loadingScreen">
+    <div class="banner-box">
+      <div style="font-size: 40px; margin-bottom: 5px;">⛏️</div>
+      <div class="banner-title">MINING EARNING</div>
+      <div style="font-size: 12px; color: #ffeaa7; margin-top: 5px;">Play, Mine & Earn USDT Daily</div>
+    </div>
+    <div class="loader"></div>
+    <p style="margin-top: 15px; font-size: 12px; color: #888;">Loading System Resources...</p>
+  </div>
+
+  <!-- FORCE JOIN SCREEN -->
+  <div id="forceJoinModal" class="modal-overlay" style="display: flex;">
+    <div class="card" style="width: 100%; max-width: 380px; text-align: center;">
+      <h2 style="color: #f39c12; margin-bottom: 5px;">📢 Mandatory Requirement</h2>
+      <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">You must join all 5 channels to continue.</p>
+      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="window.open('https://t.me')">🔗 Channel 1</button>
+      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="window.open('https://t.me')">🔗 Channel 2</button>
+      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="window.open('https://t.me')">🔗 Channel 3</button>
+      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="window.open('https://t.me')">🔗 Channel 4</button>
+      <button class="btn btn-gold" style="width:100%; margin-bottom:15px;" onclick="window.open('https://t.me')">🔗 Channel 5</button>
+      <button class="btn" style="width:100%;" onclick="verifyJoin()">✓ Verify & Proceed</button>
+    </div>
+  </div>
+
+  <!-- 15 SECONDS AD & CLICK VERIFICATION MODAL -->
+  <div id="adTimerModal" class="modal-overlay">
+    <div class="card" style="width: 100%; max-width: 350px; text-align: center; border-color: #f39c12;">
+      <h3 style="color: #f39c12; margin-bottom: 8px;">⏳ Watch & Click Ad</h3>
+      <p style="font-size: 11px; color: #aaa; margin-bottom: 15px;">You must stay 15 seconds and click the ad link below to get your reward.</p>
+      
+      <!-- Timer Display -->
+      <div id="timerDisplay" style="font-size: 28px; font-weight: bold; color: #e74c3c; margin-bottom: 15px;">15s</div>
+
+      <!-- Mandatory Ad Click Button -->
+      <button id="adClickBtn" class="btn btn-danger" style="width: 100%; margin-bottom: 10px;" onclick="openAdLink()" disabled>
+        🔒 Click Ad First (Wait...)
+      </button>
+
+      <!-- Claim Reward Button -->
+      <button id="claimRewardBtn" class="btn btn-gray" style="width: 100%;" onclick="finishAdReward()" disabled>
+        Claim Reward
+      </button>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="app-bar">
+    <div class="title-group">
+      <div class="logo-icon">⛏️</div>
+      <div>
+        <div style="font-weight: bold; font-size: 15px;">Mining Earning</div>
+        <div style="font-size: 10px; color: #8a7e71;">Thee Man</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 12px; font-size: 16px;">
+      <span>🔔</span> <span>⚙️</span>
+    </div>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div id="homePage" class="page active">
+    <div class="card">
+      <div class="user-row">
+        <div class="avatar"></div>
+        <div>
+          <div style="font-weight: bold;">Thee Man <span class="vip-badge">👑 VIP 2</span></div>
+          <div style="font-size: 11px; color: #8a7e71;">@the_man077 · <span style="color: #a55eea;">0/6 working</span></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">🪙 COINS</div>
+          <div class="stat-value" id="coinVal">60</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">💵 USDT</div>
+          <div class="stat-value" style="color:#2ecc71;">0.592</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAILY STREAK -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 13px; font-weight: bold;">🔥 Daily Streak</div>
+        <div style="font-size: 10px; background: #2e200f; color: #f39c12; padding: 2px 6px; border-radius: 4px;">Day 7 of 7</div>
+      </div>
+      <div class="streak-days">
+        <div class="day-box">D1<br>100</div>
+        <div class="day-box">D2<br>250</div>
+        <div class="day-box">D3<br>300</div>
+        <div class="day-box">D4<br>350</div>
+        <div class="day-box">D5<br>400</div>
+        <div class="day-box">D6<br>450</div>
+        <div class="day-box active">D7<br>500</div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-size: 10px; color: #8a7e71;">Today's reward · watch an ad</div>
+          <div style="font-size: 14px; font-weight: bold; color: #f39c12;">+500 coins</div>
+        </div>
+        <button class="btn" onclick="startAdProcess(500)">▶ Claim</button>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="quick-actions">
+      <div class="action-btn"><span>💱</span>Convert</div>
+      <div class="action-btn"><span>💵</span>Withdraw</div>
+      <div class="action-btn" onclick="showTab('minePage', 'nlMine')"><span>⛏️</span>Mine</div>
+      <div class="action-btn"><span>👑</span>VIP</div>
+      <div class="action-btn"><span>📜</span>History</div>
+    </div>
+  </div>
+
+  <!-- MINE PAGE -->
+  <div id="minePage" class="page">
+    <div class="card" style="margin-bottom: 15px;">
+      <div style="font-size: 16px; font-weight: bold;">⛏️ Miners Crew (6 Cats)</div>
+      <div style="font-size: 11px; color: #8a7e71; margin-top: 2px;">1 Hour Mining Cycle per miner</div>
+    </div>
+
+    <div style="padding: 0 12px;">
+      <div class="miner-card">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="cat-avatar">🐱</div>
+          <div>
+            <div style="font-weight: bold; font-size: 14px;">Rocky Cat</div>
+            <div style="font-size: 11px; color: #2ecc71;">Free Unlocked · +100/hr</div>
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="startAdProcess(100)">Start (Ad)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASKS PAGE -->
+  <div id="tasksPage" class="page">
+    <div class="tab-btn-group">
+      <div class="tab-btn active" id="tDaily" onclick="toggleTasks('daily')">Daily Tasks (10)</div>
+      <div class="tab-btn" id="tExtra" onclick="toggleTasks('extra')">Extra Tasks (10)</div>
+    </div>
+    <div id="dailyBox" style="padding: 0 12px;"></div>
+  </div>
+
+  <!-- BOTTOM NAVBAR -->
+  <div class="bottom-nav">
+    <div class="nav-link active" id="nlHome" onclick="showTab('homePage', 'nlHome')">🏠<br>Home</div>
+    <div class="nav-link" id="nlTasks" onclick="showTab('tasksPage', 'nlTasks')">📋<br>Tasks</div>
+    <div class="mine-fab" id="nlMine" onclick="showTab('minePage', 'nlMine')">⛏️</div>
+    <div class="nav-link" id="nlFriends" onclick="showTab('friendsPage', 'nlFriends')">👥<br>Friends</div>
+    <div class="nav-link" id="nlProfile" onclick="showTab('profilePage', 'nlProfile')">👤<br>Profile</div>
+  </div>
+
+  <script>
+    let coins = 60;
+    let pendingReward = 0;
+    let timerCount = 15;
+    let timerInterval = null;
+    let hasClickedAd = false;
+    let isTimerFinished = false;
+
+    // Monetag / Adsterra Link যেখানে ইউজার ক্লিক করবে
+    const AD_TARGET_LINK = "https://your-monetag-direct-link.com";
+
+    window.onload = function() {
+      setTimeout(() => {
+        document.getElementById('loadingScreen').style.display = 'none';
+      }, 2000);
+      buildTasks();
+    };
+
+    function verifyJoin() {
+      document.getElementById('forceJoinModal').style.display = 'none';
+    }
+
+    function showTab(pageId, navId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      if (navId) document.getElementById(navId).classList.add('active');
+    }
+
+    function toggleTasks(type) {
+      document.getElementById('tDaily').classList.toggle('active', type === 'daily');
+      document.getElementById('tExtra').classList.toggle('active', type !== 'daily');
+    }
+
+    function buildTasks() {
+      const dBox = document.getElementById('dailyBox');
+      dBox.innerHTML = '';
+      for(let i = 1; i <= 5; i++) {
+        dBox.innerHTML += `
+          <div class="menu-item">
+            <div><b>Task #${i}</b><div style="font-size:10px; color:#8a7e71;">Watch ad & click to earn</div></div>
+            <button class="btn btn-gold" onclick="startAdProcess(50)">+50 Coins</button>
+          </div>`;
+      }
+    }
+
+    // ট্রিগার অ্যাড প্রসেস
+    function startAdProcess(rewardAmount) {
+      pendingReward = rewardAmount;
+      timerCount = 15;
+      hasClickedAd = false;
+      isTimerFinished = false;
+
+      document.getElementById('adTimerModal').style.display = 'flex';
+      document.getElementById('timerDisplay').innerText = timerCount + "s";
+      
+      const adClickBtn = document.getElementById('adClickBtn');
+      adClickBtn.innerText = "👉 Click This Ad Link First";
+      adClickBtn.className = "btn btn-gold";
+      adClickBtn.disabled = false;
+
+      const claimBtn = document.getElementById('claimRewardBtn');
+      claimBtn.className = "btn btn-gray";
+      claimBtn.disabled = true;
+
+      // কাউন্টডাউন শুরু
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerCount--;
+        if (timerCount > 0) {
+          document.getElementById('timerDisplay').innerText = timerCount + "s";
+        } else {
+          document.getElementById('timerDisplay').innerText = "Time Finished!";
+          isTimerFinished = true;
+          clearInterval(timerInterval);
+          checkCanClaim();
+        }
+      }, 1000);
+    }
+
+    // ইউজার যখন বিজ্ঞাপনের লিঙ্কে ক্লিক করবে
+    function openAdLink() {
+      hasClickedAd = true;
+      window.open(AD_TARGET_LINK, '_blank');
+      
+      const adClickBtn = document.getElementById('adClickBtn');
+      adClickBtn.innerText = "✓ Ad Clicked";
+      adClickBtn.className = "btn btn-gray";
+      adClickBtn.disabled = true;
+
+      checkCanClaim();
+    }
+
+    // চেক করা উভয় শর্ত পূরণ হয়েছে কি না (১৫ সেকেন্ড দেখা + লিঙ্কে ক্লিক)
+    function checkCanClaim() {
+      if (hasClickedAd && isTimerFinished) {
+        const claimBtn = document.getElementById('claimRewardBtn');
+        claimBtn.className = "btn";
+        claimBtn.disabled = false;
+        claimBtn.innerText = "Claim " + pendingReward + " Coins Now!";
+      }
+    }
+
+    // রিওয়ার্ড ক্লেইম করা
+    function finishAdReward() {
+      coins += pendingReward;
+      document.getElementById('coinVal').innerText = coins;
+      document.getElementById('adTimerModal').style.display = 'none';
+      alert(`Success! +${pendingReward} Coins added to your balance.`);
+    }
+  </script>
+</body>
+</html>
