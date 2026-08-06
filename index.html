@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Mining Telegram Mini App</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #090a0f 0%, #121526 50%, #080911 100%);
+            --card-bg: rgba(22, 27, 46, 0.65);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            --accent-cyan: #00f2fe;
+            --accent-green: #00e676;
+            --text-main: #ffffff;
+            --text-sub: #8a94a6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 90px;
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        .top-bar {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: rgba(15, 18, 33, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            background: var(--accent-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        #language-select {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .container, .app-container {
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+        }
+
+        /* Glass Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            border-radius: 20px;
+            margin-top: 15px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transition: 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .balance-box {
+            margin: 15px 0;
+        }
+
+        .balance-amount {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(180deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 5px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .badge-vip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 215, 0, 0.12);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+        }
+
+        /* Force Join Section */
+        .channel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .btn-channel {
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.2) 0%, rgba(0, 136, 204, 0.05) 100%);
+            border: 1px solid rgba(0, 136, 204, 0.4);
+            color: #38bdf8;
+            text-decoration: none;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .btn-channel:active {
+            transform: scale(0.98);
+            background: rgba(0, 136, 204, 0.3);
+        }
+
+        /* Crew Cards (Mining) */
+        .crew-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .crew-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .crew-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .crew-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            border: 1px solid var(--card-border);
+        }
+
+        .crew-details h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .crew-details p {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .rate {
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        /* Modern Action Buttons */
+        .btn-mine {
+            background: var(--accent-gold);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 12px;
+            color: #000;
+            font-weight: 800;
+            font-size: 0.8rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn-mine:active { transform: scale(0.95); }
+
+        .btn-action-green {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            margin-top: 15px;
+        }
+
+        .btn-withdraw {
+            width: 100%;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+            margin-top: 15px;
+        }
+
+        /* Bottom Nav Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(12, 15, 28, 0.92);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 16px 0;
+            border-top: 1px solid var(--card-border);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+            width: 20%;
+        }
+
+        .nav-btn i {
+            font-size: 1.2rem;
+        }
+
+        .nav-btn.active {
+            color: #38bdf8;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active i {
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+        }
+
+        /* Input & Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(4, 6, 14, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: #121629;
+            border: 1px solid var(--card-border);
+            padding: 25px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            outline: none;
+            font-size: 0.85rem;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="top-bar">
+        <div class="app-title"><i class="fa-solid fa-bolt"></i> MINING BUDDIES</div>
+        <select id="language-select" onchange="changeLanguage(this.value)">
+            <option value="en">🇬🇧 EN</option>
+            <option value="bn">🇧🇩 BN</option>
+            <option value="ar">🇸🇦 AR</option>
+        </select>
+    </div>
+
+    <!-- Force Join Screen -->
+    <div id="force-join-screen" class="container">
+        <div class="card">
+            <i class="fa-solid fa-shield-halved" style="font-size: 2.5rem; color: #38bdf8; margin-bottom: 10px;"></i>
+            <h2 id="fj-title" style="font-weight: 800;">Verification Required</h2>
+            <p id="fj-desc" style="margin-top: 6px; color: var(--text-sub); font-size: 0.85rem;">Join all 5 official channels below to unlock your mining dashboard:</p>
+            
+            <div class="channel-list">
+                <a href="https://t.me/your_channel_1" target="_blank" class="btn-channel" onclick="markChannelJoined(1)">
+                    <span><i class="fa-brands fa-telegram"></i> Official Channel 1</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+                </a>
+                <a href="https://t.me/your_channel_2" target="_blank" class="btn-channel" onclick="markChannelJoined(2)">
+                    <span><i class="fa-brands fa-telegram"></i> Official Channel 2</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+                </a>
+                <a href="https://t.me/your_channel_3" target="_blank" class="btn-channel" onclick="markChannelJoined(3)">
+                    <span><i class="fa-brands fa-telegram"></i> Official Channel 3</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+                </a>
+                <a href="https://t.me/your_channel_4" target="_blank" class="btn-channel" onclick="markChannelJoined(4)">
+                    <span><i class="fa-brands fa-telegram"></i> Official Channel 4</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+                </a>
+                <a href="https://t.me/your_channel_5" target="_blank" class="btn-channel" onclick="markChannelJoined(5)">
+                    <span><i class="fa-brands fa-telegram"></i> Official Channel 5</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+                </a>
+            </div>
+
+            <button id="verify-btn" class="btn-action-green" onclick="verifyJoin()">
+                <i class="fa-solid fa-circle-check"></i> Verify & Unlock App
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App UI -->
+    <div id="main-app" class="app-container" style="display: none;">
+        
+        <!-- HOME TAB -->
+        <div id="tab-home" class="tab-content active">
+            <h2 id="txt-home" style="font-weight: 800;">Dashboard</h2>
+            <div class="card">
+                <p style="color: var(--text-sub); font-size: 0.85rem;"><span id="txt-welcome">Welcome back</span>, <b id="user-name" style="color: #fff;">User</b></p>
+                <div class="balance-box">
+                    <div style="font-size: 0.8rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px;"><span id="txt-balance">Total Balance</span></div>
+                    <div class="balance-amount"><span id="user-tokens">0</span></div>
+                    <div style="font-size: 0.85rem; color: var(--accent-cyan); font-weight: 600;">≈ <span id="user-usdt">0.0000</span> USDT</div>
+                </div>
+                <div class="badge-vip"><i class="fa-solid fa-crown"></i> VIP LEVEL <span id="user-vip">1</span></div>
+            </div>
+        </div>
+
+        <!-- MINE TAB -->
+        <div id="tab-mine" class="tab-content">
+            <h2 id="txt-mine-title" style="font-weight: 800;">Mining Fleet</h2>
+            <div class="crew-container">
+                
+                <div class="crew-card">
+                    <div class="crew-info">
+                        <div class="crew-avatar">🤖</div>
+                        <div class="crew-details">
+                            <h3>Rocky Bot</h3>
+                            <p>Mining Rate: <span class="rate">200 / h</span></p>
+                        </div>
+                    </div>
+                    <button class="btn-mine" onclick="startMiningWithStrictAds('Rocky', 200)">START</button>
+                </div>
+
+                <div class="crew-card">
+                    <div class="crew-info">
+                        <div class="crew-avatar">🦊</div>
+                        <div class="crew-details">
+                            <h3>Nugget Fox</h3>
+                            <p>Mining Rate: <span class="rate">350 / h</span></p>
+                        </div>
+                    </div>
+                    <button class="btn-mine" onclick="startMiningWithStrictAds('Nugget', 350)">START</button>
+                </div>
+
+                <div class="crew-card">
+                    <div class="crew-info">
+                        <div class="crew-avatar">🐸</div>
+                        <div class="crew-details">
+                            <h3>Pickles Frog</h3>
+                            <p>Mining Rate: <span class="rate">500 / h</span></p>
+                        </div>
+                    </div>
+                    <button class="btn-mine" onclick="startMiningWithStrictAds('Pickles', 500)">START</button>
+                </div>
+
+                <div class="crew-card">
+                    <div class="crew-info">
+                        <div class="crew-avatar">👷</div>
+                        <div class="crew-details">
+                            <h3>Digger Pro</h3>
+                            <p>Mining Rate: <span class="rate">600 / h</span></p>
+                        </div>
+                    </div>
+                    <button class="btn-mine" onclick="startMiningWithStrictAds('Digger', 600)">START</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- REFER TAB -->
+        <div id="tab-refer" class="tab-content">
+            <h2 id="txt-refer" style="font-weight: 800;">Referrals</h2>
+            <div class="card">
+                <i class="fa-solid fa-users" style="font-size: 2.2rem; color: #38bdf8; margin-bottom: 10px;"></i>
+                <h3>Invite Friends & Earn</h3>
+                <p style="color: var(--text-sub); font-size: 0.8rem; margin-top: 6px;">Unlock higher VIP tiers and withdrawal limits per referral.</p>
+                <div style="margin: 15px 0; font-size: 1rem; font-weight: 700;">Total Refers: <b id="user-refers" style="color: var(--accent-cyan);">0</b></div>
+                <input type="text" id="ref-link" value="https://t.me/your_bot?start=12345" readonly>
+                <button class="btn-action-green" onclick="copyRefLink()"><i class="fa-solid fa-copy"></i> Copy Referral Link</button>
+            </div>
+        </div>
+
+        <!-- PROFILE TAB -->
+        <div id="tab-profile" class="tab-content">
+            <h2 id="txt-profile" style="font-weight: 800;">My Profile</h2>
+            <div class="card" style="text-align: left;">
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--card-border);">
+                    <span style="color: var(--text-sub);">Telegram ID</span>
+                    <span id="user-id" style="font-weight: 700;">-</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--card-border);">
+                    <span style="color: var(--text-sub);">Ads Verified</span>
+                    <span id="user-ads-count" style="font-weight: 700; color: var(--accent-cyan);">0</span>
+                </div>
+                <button class="btn-withdraw" onclick="openWithdrawModal()"><i class="fa-solid fa-wallet"></i> <span id="txt-withdraw-btn">Withdraw USDT</span></button>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="switchTab('home', this)"><i class="fa-solid fa-house"></i><span id="nav-home">Home</span></button>
+            <button class="nav-btn" onclick="switchTab('mine', this)"><i class="fa-solid fa-pickaxe"></i><span id="nav-mine">Mine</span></button>
+            <button class="nav-btn" onclick="switchTab('refer', this)"><i class="fa-solid fa-user-plus"></i><span id="nav-refer">Refer</span></button>
+            <button class="nav-btn" onclick="switchTab('profile', this)"><i class="fa-solid fa-user"></i><span id="nav-profile">Profile</span></button>
+        </div>
+
+    </div>
+
+    <!-- WITHDRAW MODAL -->
+    <div id="withdraw-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3 id="txt-req-withdraw"><i class="fa-solid fa-money-bill-transfer" style="color: var(--accent-green);"></i> Request Withdrawal</h3>
+            <p style="font-size: 0.75rem; color: var(--text-sub); margin-top: 4px;">10,000,000 Tokens = 1.00 USDT</p>
+
+            <select id="wallet-network">
+                <option value="BEP20">USDT (BEP20 / BSC)</option>
+                <option value="TON">USDT (TON Network)</option>
+            </select>
+
+            <input type="text" id="wallet-address" placeholder="Paste Wallet Address">
+            <button class="btn-action-green" onclick="processWithdrawal()">Submit Cashout</button>
+            <button style="background: none; border: none; color: var(--text-sub); margin-top: 12px; cursor: pointer; font-size: 0.85rem;" onclick="closeWithdrawModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram?.WebApp || {};
+        if (tg.expand) tg.expand();
+
+        let userData = {
+            tgId: tg.initDataUnsafe?.user?.id || "8392019",
+            name: tg.initDataUnsafe?.user?.first_name || "User",
+            tokens: 0,
+            referrals: 0,
+            adsWatched: 0,
+            withdrawCount: 0,
+            vipLevel: 1
+        };
+
+        const DIRECT_AD_LINK = "https://www.google.com";
+
+        let joinedChannels = { 1: false, 2: false, 3: false, 4: false, 5: false };
+
+        function markChannelJoined(channelNum) {
+            joinedChannels[channelNum] = true;
+        }
+
+        function verifyJoin() {
+            let allJoined = Object.values(joinedChannels).every(status => status === true);
+
+            if (allJoined) {
+                document.getElementById('force-join-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                updateUI();
+            } else {
+                alert("❌ Access Denied! Please click and open all 5 channel links above to unlock.");
+            }
+        }
+
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function showStrictAdAndVerify() {
+            return new Promise((resolve) => {
+                let isAdWatched = false;
+                let isAdClicked = false;
+                alert("⚠️ Notice: Stay 15 SECONDS on the ad page AND click it to complete verification!");
+                setTimeout(() => { isAdWatched = true; }, 15000);
+                window.open(DIRECT_AD_LINK, "_blank");
+                window.onblur = function() { isAdClicked = true; };
+                setTimeout(() => {
+                    if (isAdWatched && isAdClicked) {
+                        alert("✅ Ad verified successfully!");
+                        resolve(true);
+                    } else {
+                        alert("❌ Verification Failed! You must watch 15 seconds AND click the ad.");
+                        resolve(false);
+                    }
+                }, 16000);
+            });
+        }
+
+        async function startMiningWithStrictAds(buddyName, rate) {
+            alert(`To start ${buddyName}, complete watching 2 required ads!`);
+            let ad1 = await showStrictAdAndVerify();
+            if (!ad1) return;
+            let ad2 = await showStrictAdAndVerify();
+            if (!ad2) return;
+            userData.adsWatched += 2;
+            userData.tokens += rate;
+            updateUI();
+            alert(`🎉 Mining Started for ${buddyName}! Received ${rate} Tokens.`);
+        }
+
+        function updateVIPStatus() {
+            let refs = userData.referrals;
+            if (refs >= 50) userData.vipLevel = 3;
+            else if (refs >= 20) userData.vipLevel = 2;
+            else if (refs >= 10) userData.vipLevel = 3;
+            else if (refs >= 5) userData.vipLevel = 2;
+            else userData.vipLevel = 1;
+        }
+
+        function processWithdrawal() {
+            if (userData.referrals < 3) {
+                alert("❌ Locked! Minimum 3 active referrals required.");
+                return;
+            }
+            let reqAds = 10;
+            let minUsdt = 0.20;
+            if (userData.withdrawCount === 1) { reqAds = 15; minUsdt = 0.40; }
+            else if (userData.withdrawCount >= 2) { reqAds = 20; minUsdt = 1.00; }
+
+            let minTokens = minUsdt * 10000000;
+            if (userData.adsWatched < reqAds) {
+                alert(`❌ Requires ${reqAds} ads watched for Withdrawal #${userData.withdrawCount + 1}!`);
+                return;
+            }
+            if (userData.tokens < minTokens) {
+                alert(`❌ Minimum required balance is ${minUsdt} USDT.`);
+                return;
+            }
+            let address = document.getElementById('wallet-address').value;
+            if (!address) { alert("Enter a valid wallet address!"); return; }
+            alert(`✅ Withdrawal request submitted!`);
+            userData.tokens -= minTokens;
+            userData.withdrawCount++;
+            userData.adsWatched = 0;
+            updateUI();
+            closeWithdrawModal();
+        }
+
+        function openWithdrawModal() { document.getElementById('withdraw-modal').style.display = 'flex'; }
+        function closeWithdrawModal() { document.getElementById('withdraw-modal').style.display = 'none'; }
+
+        function copyRefLink() {
+            const link = document.getElementById("ref-link");
+            link.select();
+            navigator.clipboard.writeText(link.value);
+            alert("Referral link copied!");
+        }
+
+        function updateUI() {
+            updateVIPStatus();
+            document.getElementById('user-name').innerText = userData.name;
+            document.getElementById('user-tokens').innerText = userData.tokens.toLocaleString();
+            document.getElementById('user-usdt').innerText = (userData.tokens / 10000000).toFixed(4);
+            document.getElementById('user-vip').innerText = userData.vipLevel;
+            document.getElementById('user-id').innerText = userData.tgId;
+            document.getElementById('user-ads-count').innerText = userData.adsWatched;
+            document.getElementById('user-refers').innerText = userData.referrals;
+        }
+
+        window.onload = function() { updateUI(); };
+    </script>
+</body>
+</html>
