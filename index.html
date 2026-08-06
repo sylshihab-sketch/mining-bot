@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining Bot Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0e12;
+            --card-bg: #141a21;
+            --border-color: #232d38;
+            --primary-green: #22c55e;
+            --accent-gold: #f59e0b;
+            --text-main: #f3f4f6;
+            --text-sub: #9ca3af;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding-bottom: 80px; }
+
+        /* Join Gate Overlay (Image 11 Inspired) */
+        #gateScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #080c0f; z-index: 9999; padding: 20px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .gate-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 100%; max-width: 380px; text-align: center; }
+        .gate-title { color: var(--primary-green); margin-bottom: 15px; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .channel-btn { background: #1a232e; border: 1px solid var(--border-color); color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; font-size: 13px; }
+        .btn-join { background: var(--primary-green); color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-continue { background: linear-gradient(135deg, #22c55e, #15803d); color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; font-size: 15px; }
+
+        /* App UI */
+        .app-bar { background: var(--card-bg); padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .user-card { background: var(--card-bg); margin: 12px; padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--accent-gold); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 12px 12px; }
+        .stat-box { background: var(--card-bg); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); text-align: center; }
+        .stat-box label { font-size: 10px; color: var(--text-sub); }
+        .stat-box h3 { color: var(--accent-gold); font-size: 18px; margin-top: 4px; }
+
+        .tab-section { display: none; padding: 0 12px; }
+        .tab-section.active { display: block; }
+
+        /* Miner Cards */
+        .miner-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .miner-locked { opacity: 0.5; filter: grayscale(1); }
+        .miner-info h4 { font-size: 14px; }
+        .miner-info p { font-size: 11px; color: var(--primary-green); }
+        .btn-action { background: var(--accent-gold); border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; color: #000; }
+        .btn-action:disabled { background: #332820; color: var(--text-sub); }
+
+        /* Popup Modal (Image 12 Inspired) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; width: 100%; max-width: 350px; text-align: center; }
+        .modal-icon { width: 60px; height: 60px; background: #166534; border-radius: 16px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+
+        /* Nav Bar */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; padding: 10px 0; }
+        .nav-item { text-decoration: none; color: var(--text-sub); font-size: 10px; text-align: center; cursor: pointer; }
+        .nav-item.active { color: var(--accent-gold); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- 5 Telegram Channel Gate Screen -->
+    <div id="gateScreen">
+        <div class="gate-card">
+            <h3 class="gate-title">GET STARTED</h3>
+            <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 15px;">Must join all 5 channels to access the app</p>
+            
+            <a href="https://t.me/example1" target="_blank" class="channel-btn">Telegram Channel 1 <span class="btn-join">JOIN</span></a>
+            <a href="https://t.me/example2" target="_blank" class="channel-btn">Telegram Channel 2 <span class="btn-join">JOIN</span></a>
+            <a href="https://t.me/example3" target="_blank" class="channel-btn">Telegram Channel 3 <span class="btn-join">JOIN</span></a>
+            <a href="https://t.me/example4" target="_blank" class="channel-btn">Telegram Channel 4 <span class="btn-join">JOIN</span></a>
+            <a href="https://t.me/example5" target="_blank" class="channel-btn">Telegram Channel 5 <span class="btn-join">JOIN</span></a>
+
+            <button class="btn-continue" onclick="checkGate()">ACCESS GRANTED</button>
+        </div>
+    </div>
+
+    <!-- Main Header -->
+    <div class="app-bar">
+        <h3>⛏️ MINING BOT</h3>
+        <span style="font-size: 11px; color: var(--text-sub);" id="userVIP">VIP 1</span>
+    </div>
+
+    <!-- Profile Summary -->
+    <div class="user-card">
+        <div class="avatar" id="uAvatar">U</div>
+        <div>
+            <h4 id="uName">User Name</h4>
+            <p style="font-size: 11px; color: var(--text-sub);">Referrals: <span id="refCount" style="color:#fff;">0</span></p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-box">
+            <label>TOKENS BALANCE</label>
+            <h3 id="tokenBal">0</h3>
+            <span style="font-size: 9px; color: var(--text-sub);" id="takaBal">≈ ৳0.00 BDT</span>
+        </div>
+        <div class="stat-box">
+            <label>ESTIMATED USD</label>
+            <h3 id="usdBal" style="color:var(--primary-green);">$0.000</h3>
+            <span style="font-size: 9px; color: var(--text-sub);">100 Lakh = $1 USDT</span>
+        </div>
+    </div>
+
+    <!-- TAB 1: MINING (6 Miners) -->
+    <div id="mineTab" class="tab-section active">
+        <h4 style="margin-bottom: 10px; font-size: 13px;">Mining Rig (1 Hour Session)</h4>
+        <div id="minersContainer"></div>
+    </div>
+
+    <!-- TAB 2: FRIENDS & VIP -->
+    <div id="friendsTab" class="tab-section">
+        <div class="stat-box" style="margin-bottom: 12px;">
+            <h4>Invite Friends</h4>
+            <p style="font-size: 11px; color: var(--text-sub); margin: 6px 0;">Share link to earn tokens & unlock VIP levels!</p>
+            <button class="btn-action" style="width: 100%;" onclick="copyRef()">Copy Referral Link</button>
+        </div>
+
+        <h4 style="margin-bottom: 8px; font-size: 13px;">VIP Milestones</h4>
+        <div class="miner-card">
+            <div><b>5 Referrals</b><br><span style="font-size:11px; color:var(--accent-gold);">VIP 2 (3 Days)</span></div>
+            <button class="btn-action" onclick="claimVIP(5, 2)">Unlock</button>
+        </div>
+        <div class="miner-card">
+            <div><b>10 Referrals</b><br><span style="font-size:11px; color:var(--accent-gold);">VIP 3 (3 Days)</span></div>
+            <button class="btn-action" onclick="claimVIP(10, 3)">Unlock</button>
+        </div>
+        <div class="miner-card">
+            <div><b>20 Referrals</b><br><span style="font-size:11px; color:var(--accent-gold);">VIP 2 (7 Days)</span></div>
+            <button class="btn-action" onclick="claimVIP(20, 2)">Unlock</button>
+        </div>
+        <div class="miner-card">
+            <div><b>50 Referrals</b><br><span style="font-size:11px; color:var(--accent-gold);">VIP 3 (10 Days)</span></div>
+            <button class="btn-action" onclick="claimVIP(50, 3)">Unlock</button>
+        </div>
+    </div>
+
+    <!-- TAB 3: WITHDRAW -->
+    <div id="withdrawTab" class="tab-section">
+        <div class="stat-box">
+            <h4>Withdraw Tokens</h4>
+            <p style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">Requirement: Min 3 Referrals & Ad Limits</p>
+            
+            <select id="walletType" style="width: 100%; padding: 10px; background: #000; border: 1px solid var(--border-color); color: #fff; margin: 10px 0; border-radius: 6px;">
+                <option value="TON">USDT (TON Network)</option>
+                <option value="BEP20">USDT (BEP20 Network)</option>
+            </select>
+
+            <input type="text" placeholder="Enter Wallet Address" style="width: 100%; padding: 10px; background: #000; border: 1px solid var(--border-color); color: #fff; border-radius: 6px; margin-bottom: 10px;">
+            <button class="btn-action" style="width: 100%;" onclick="processWithdraw()">Request Withdrawal</button>
+        </div>
+    </div>
+
+    <!-- Ad Pop-up Modal (Image 12 Setup) -->
+    <div class="modal" id="adModal">
+        <div class="modal-content">
+            <div class="modal-icon">👆</div>
+            <h3 style="margin-bottom: 6px;">Tap the ad to earn</h3>
+            <p style="font-size: 11px; color: var(--text-sub); margin-bottom: 12px;">Watch 15s and tap the banner below to register your view.</p>
+            
+            <!-- Ad Placeholder -->
+            <div id="monetagAdBox" onclick="registerAdClick()" style="background: #222; border: 1px dashed var(--accent-gold); padding: 20px; border-radius: 8px; margin-bottom: 12px; cursor: pointer;">
+                <span style="font-size: 12px; color: var(--accent-gold);">[ Monetag / Adsterra Banner ]<br><b>CLICK HERE TO COMPLETE</b></span>
+            </div>
+
+            <p id="adTimerText" style="font-size: 12px; color: var(--primary-green); margin-bottom: 10px;">Timer: 15s</p>
+            <button class="btn-action" id="adDoneBtn" disabled style="width: 100%;" onclick="completeAdStep()">Claim / Next</button>
+        </div>
+    </div>
+
+    <!-- Nav Bar -->
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('mine')">⛏️<br>Mining</div>
+        <div class="nav-item" onclick="switchTab('friends')">👥<br>Friends</div>
+        <div class="nav-item" onclick="switchTab('withdraw')">💵<br>Withdraw</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let tokens = 0;
+        let userVIP = 1;
+        let refCount = 0;
+        let adsWatchedTotal = 0;
+        let withdrawCount = 0;
+
+        // Mining State
+        let currentMinerIndex = null;
+        let adStep = 0; // Requires 2 ads
+        let adClicked = false;
+        let adTimer = 15;
+        let adInterval = null;
+
+        const miners = [
+            { name: "Miner 1", rate: 1000, vipReq: 1 },
+            { name: "Miner 2", rate: 2000, vipReq: 1 },
+            { name: "Miner 3", rate: 4000, vipReq: 2 },
+            { name: "Miner 4", rate: 6000, vipReq: 2 },
+            { name: "Miner 5", rate: 10000, vipReq: 3 },
+            { name: "Miner 6", rate: 15000, vipReq: 3 }
+        ];
+
+        function checkGate() {
+            document.getElementById('gateScreen').style.display = 'none';
+        }
+
+        function updateUI() {
+            document.getElementById('tokenBal').innerText = Math.floor(tokens).toLocaleString();
+            document.getElementById('takaBal').innerText = `≈ ৳${(tokens / 1000).toFixed(2)} BDT`;
+            document.getElementById('usdBal').innerText = `$${(tokens / 10000000).toFixed(4)}`;
+            document.getElementById('userVIP').innerText = `VIP ${userVIP}`;
+            document.getElementById('refCount').innerText = refCount;
+            renderMiners();
+        }
+
+        function renderMiners() {
+            const container = document.getElementById('minersContainer');
+            container.innerHTML = '';
+            miners.forEach((m, idx) => {
+                const isLocked = userVIP < m.vipReq;
+                container.innerHTML += `
+                    <div class="miner-card ${isLocked ? 'miner-locked' : ''}">
+                        <div class="miner-info">
+                            <h4>${m.name} ${isLocked ? '🔒 (VIP ' + m.vipReq + ' Req)' : ''}</h4>
+                            <p>+${m.rate} Tokens / Hour</p>
+                        </div>
+                        <button class="btn-action" ${isLocked ? 'disabled' : ''} onclick="triggerMiningAds(${idx})">
+                            ${isLocked ? 'Locked' : 'Start Mining'}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // Ads Logic
+        function triggerMiningAds(index) {
+            currentMinerIndex = index;
+            adStep = 1;
+            startAdProcess();
+        }
+
+        function startAdProcess() {
+            adClicked = false;
+            adTimer = 15;
+            document.getElementById('adModal').style.display = 'flex';
+            document.getElementById('adDoneBtn').disabled = true;
+            document.getElementById('adDoneBtn').innerText = `Watch & Click Banner (${adStep}/2)`;
+            
+            clearInterval(adInterval);
+            adInterval = setInterval(() => {
+                adTimer--;
+                document.getElementById('adTimerText').innerText = `Timer: ${adTimer}s`;
+                if (adTimer <= 0) {
+                    clearInterval(adInterval);
+                    document.getElementById('adTimerText').innerText = "Time finished! Click ad if not clicked.";
+                    checkAdCompletion();
+                }
+            }, 1000);
+        }
+
+        function registerAdClick() {
+            adClicked = true;
+            // Place your Monetag Direct Link or Popunder Trigger here:
+            // window.open('YOUR_MONETAG_DIRECT_LINK', '_blank');
+            alert('Ad Click Registered!');
+            checkAdCompletion();
+        }
+
+        function checkAdCompletion() {
+            if (adTimer <= 0 && adClicked) {
+                document.getElementById('adDoneBtn').disabled = false;
+                document.getElementById('adDoneBtn').innerText = "Continue";
+            }
+        }
+
+        function completeAdStep() {
+            adsWatchedTotal++;
+            if (adStep === 1) {
+                adStep = 2;
+                startAdProcess();
+            } else {
+                document.getElementById('adModal').style.display = 'none';
+                alert('Both Ads Completed Successfully! Mining Activated for 1 Hour.');
+                tokens += miners[currentMinerIndex].rate;
+                updateUI();
+            }
+        }
+
+        // VIP Unlock System
+        function claimVIP(reqRefs, level) {
+            if (refCount >= reqRefs) {
+                userVIP = level;
+                alert(`Unlocked VIP ${level}!`);
+                updateUI();
+            } else {
+                alert(`Requires ${reqRefs} referrals. You have ${refCount}.`);
+            }
+        }
+
+        // Withdrawal Logic
+        function processWithdraw() {
+            let requiredAds = withdrawCount === 0 ? 10 : (withdrawCount === 1 ? 15 : 20);
+            if (refCount < 3) {
+                alert('Withdrawal requires at least 3 referrals!');
+                return;
+            }
+            if (adsWatchedTotal < requiredAds) {
+                alert(`You need to watch at least ${requiredAds} ads for this withdrawal! (Watched: ${adsWatchedTotal})`);
+                return;
+            }
+            alert('Withdrawal Request Submitted Successfully!');
+            withdrawCount++;
+        }
+
+        function copyRef() {
+            alert('Referral link copied to clipboard!');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if (tab === 'mine') document.getElementById('mineTab').classList.add('active');
+            if (tab === 'friends') document.getElementById('friendsTab').classList.add('active');
+            if (tab === 'withdraw') document.getElementById('withdrawTab').classList.add('active');
+        }
+
+        // Telegram WebApp Init
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const u = tg.initDataUnsafe.user;
+            document.getElementById('uName').innerText = u.first_name;
+            document.getElementById('uAvatar').innerText = u.first_name[0];
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
