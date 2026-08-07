@@ -1,4 +1,167 @@
 // =======================
+// Referral System
+// =======================
+
+let referrals = 0;
+let vip = 1;
+
+async function loadReferral() {
+
+const doc = await userRef.get();
+
+if (!doc.exists) return;
+
+const data = doc.data();
+
+referrals = data.referrals || 0;
+vip = data.vip || 1;
+
+updateVIP();
+
+}
+
+function updateVIP() {
+
+if (referrals >= 10) {
+    vip = 3;
+} else if (referrals >= 5) {
+    vip = 2;
+} else {
+    vip = 1;
+}
+
+document.getElementById("vipBadge").innerHTML = "VIP " + vip;
+
+userRef.update({
+    vip: vip
+});
+
+}
+
+// =======================
+// Referral Link
+// =======================
+
+function shareReferral() {
+
+const bot = "YOUR_BOT_USERNAME";
+
+const url =
+`https://t.me/share/url?url=https://t.me/${bot}?start=${user.id}`;
+
+window.open(url);
+
+}
+
+function copyReferral(){
+
+const bot="YOUR_BOT_USERNAME";
+
+navigator.clipboard.writeText(
+`https://t.me/${bot}?start=${user.id}`
+);
+
+toast("Referral Link Copied");
+
+}
+
+// =======================
+// Withdraw
+// =======================
+
+async function withdraw(){
+
+let amount=parseInt(
+document.getElementById("withdrawAmount").value
+);
+
+let wallet=document.getElementById("wallet").value;
+
+if(amount<30000){
+
+toast("Minimum 30000 Coins");
+
+return;
+
+}
+
+if(amount>balance){
+
+toast("Insufficient Balance");
+
+return;
+
+}
+
+balance-=amount;
+
+updateBalance();
+
+await saveUser();
+
+await db.collection("withdraws").add({
+
+user:user.id,
+
+name:user.first_name,
+
+wallet:wallet,
+
+coins:amount,
+
+status:"Pending",
+
+time:new Date()
+
+});
+
+toast("Withdraw Submitted");
+
+}
+
+// =======================
+// Leaderboard
+// =======================
+
+async function leaderboard(){
+
+const snap=await db.collection("users")
+
+.orderBy("balance","desc")
+
+.limit(20)
+
+.get();
+
+let html="";
+
+let rank=1;
+
+snap.forEach(doc=>{
+
+let d=doc.data();
+
+html+=`
+
+<div class="leader">
+
+<span>#${rank}</span>
+
+<span>${d.name}</span>
+
+<b>${d.balance}</b>
+
+</div>
+
+`;
+
+rank++;
+
+});
+
+document.getElementById("leaderboard").innerHTML=html;
+
+}// =======================
 // Telegram Mining Bot
 // script.js
 // =======================
