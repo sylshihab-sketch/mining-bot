@@ -1,0 +1,39 @@
+<!-- TAB 4: SMM SERVICE -->
+<div id="smmTab" class="tab-section">
+  <div class="admin-notice-card">
+    <h3 style="color: var(--primary-orange); margin-bottom: 6px;">📢 Notice / Contact Admin</h3>
+    <!-- বাংলা থেকে ইংরেজি অনুবাদ করা হয়েছে -->
+    <p style="font-size: 12px; color: var(--text-sub);">To add your channel or get direct member promotion, contact the admin and submit your channel link.</p>
+    <a href="https://t.me/THE_OWNER_O" target="_blank" class="btn-contact-admin">📩 Contact Admin on Telegram (@THE_OWNER_O)</a>
+  </div>
+
+  <div class="card" style="border-color: var(--neon-green); box-shadow: var(--green-glow);">
+    <h3 style="color: var(--neon-green); margin-bottom: 8px;">🚀 SMM Telegram Service</h3>
+    <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 15px;">Promote your Telegram Channel inside our bot! Real app users will join your channel to earn coins.</p>
+
+    <label style="font-size:11px; color:var(--text-sub);">Select Package:</label>
+    <select class="custom-select" id="smmPackage">
+      <option value="10">1,000 Members — $10.00 USDT (or 1,000,000 Coins)</option>
+      <option value="20">2,000 Members — $20.00 USDT (or 2,000,000 Coins)</option>
+      <option value="50">5,000 Members — $50.00 USDT (or 5,000,000 Coins)</option>
+    </select>
+
+    <!-- Username থেকে Channel Link এ পরিবর্তন করা হয়েছে -->
+    <label style="font-size:11px; color:var(--text-sub);">Telegram Channel Link (e.g. https://t.me/yourchannel):</label>
+    <input type="url" class="custom-input" id="smmChannelLink" placeholder="https://t.me/yourchannel">
+
+    <label style="font-size:11px; color:var(--text-sub);">Payment Method:</label>
+    <select class="custom-select" id="smmPayMethod">
+      <option value="COINS">Pay with App Balance (Coins)</option>
+      <option value="USDT">Pay with USDT (TxID / Deposit)</option>
+    </select>
+
+    <div id="smmUsdtBox" style="display: none; background: #0d1117; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 11px;">
+      <strong>Send USDT (BEP20) to:</strong><br>
+      <span style="color: var(--primary-orange);">0xeb02ca9ea6af17783f7e1c9644a080b9c4fb0a77</span>
+      <input type="text" class="custom-input" id="smmTxHash" placeholder="Enter Payment TxID / Hash" style="margin-top: 8px;">
+    </div>
+
+    <button class="btn-continue" style="background: var(--gold-gradient);" onclick="submitSmmOrder()">BUY MEMBERS NOW</button>
+  </div>
+</div>
